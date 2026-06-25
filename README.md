@@ -42,7 +42,6 @@ Para evaluar la capacitación, accede a la página **Formación y Satisfacción*
 ├── MANUAL_TECNICO.md
 └── docs/
     ├── GestionPeople_Informe.19062026.md
-    └── GestionPeople_Informe_19062026.md
 ```
 
 ## 🛠️ Tecnologías
