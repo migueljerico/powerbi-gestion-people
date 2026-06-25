@@ -41,7 +41,7 @@ El sistema permite a los gestores de talento identificar brechas salariales, ana
 ```text
 powerbi-gestion-people/
 ├── docs/
-│   └── GestionPeople_Informe_miguel_ivan-19062026.md  # Documentación técnica detallada
+│   └── GestionPeople_Informe_19062026.md  # Documentación técnica detallada
 └── README.md                                          # Guía de inicio rápido
 ```
 
