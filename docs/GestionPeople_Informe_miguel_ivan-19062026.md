@@ -1,4 +1,4 @@
-# Documentación Técnica: GestionPeople_Informe_miguel_ivan
+# Documentación Técnica: GestionPeople_Informe
 
 ## 📋 Resumen
 Este documento detalla la estructura del archivo de plantilla de Power BI (`.pbit`) diseñado para la gestión de personas. El informe integra datos de empleados, departamentos y registros de formación para analizar el rendimiento, la brecha salarial, la distribución geográfica y el desarrollo profesional del capital humano.
