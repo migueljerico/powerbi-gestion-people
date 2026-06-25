@@ -24,34 +24,37 @@ El sistema permite a los gestores de talento identificar brechas salariales, ana
 
 ## ⚙️ Instalación
 
-1. **Requisitos**: Instalar [Power BI Desktop](https://powerbi.microsoft.com/desktop/).
-2. **Descarga**: Clonar el repositorio o descargar el archivo `.pbit`.
-3. **Carga de Datos**: 
-   - Abrir el archivo `GestionPeople.pbit`.
-   - Cuando el sistema solicite el origen de datos, seleccionar el archivo Excel con la estructura de empleados y formación.
-4. **Actualización**: Hacer clic en el botón `Actualizar` en la cinta de opciones superior para procesar los datos a través de Power Query.
+1. **Descargar la plantilla**: Obtén el archivo `GestionPeople_Informe.19062026.pbit` desde el repositorio.
+2. **Abrir en Power BI**: Ejecuta el archivo con Power BI Desktop instalado.
+3. **Configurar Origen**: Cuando el sistema solicite el parámetro `Path_Excel`, introduce la ruta local del archivo de datos (ej. `C:\Datos\Empleados.xlsx`).
+4. **Carga de Datos**: Haz clic en "Cargar" para que Power Query procese las tablas `Empleados_final`, `Departamentos_final` y `Registro formacion_final`.
 
 ## 🚀 Uso
 
-- **Filtrado Dinámico**: Utilice los *Slicers* laterales para filtrar por departamento, género o ubicación.
-- **Navegación**: Use los `ActionButton` integrados en el Dashboard Ejecutivo para saltar entre las páginas de análisis.
-- **Análisis de Brecha**: Acceda a la página de *Brecha Salarial* y observe el `ScatterChart` para identificar anomalías salariales por rango de edad y cargo.
+Para analizar la equidad salarial, navega a la página **Análisis Brecha Salarial de Género** y utiliza el `ComboChart` para comparar el salario promedio por género. 
+
+Para evaluar la capacitación, accede a la página **Formación y Satisfacción** y analiza la correlación entre horas de formación y satisfacción mediante el `ScatterChart`.
 
 ## 📁 Estructura del proyecto
 ```text
-powerbi-gestion-people/
-├── docs/
-│   └── GestionPeople_Informe_19062026.md  # Documentación técnica detallada
-└── README.md                                          # Guía de inicio rápido
+. 
+├── README.md
+├── MANUAL_TECNICO.md
+└── docs/
+    ├── GestionPeople_Informe.19062026.md
+    └── GestionPeople_Informe_19062026.md
 ```
 
 ## 🛠️ Tecnologías
 
 | Herramienta | Versión/Detalle | Uso en el proyecto |
 | :--- | :--- | :--- |
-| **Power BI** | Desktop | Motor de visualización y modelado de datos. |
-| **DAX** | Data Analysis Expressions | Creación de medidas complejas (brechas salariales, % contratación). |
-| **Power Query** | M Language | ETL para limpieza y transformación de datos de Excel. |
-| **Excel** | .xlsx | Fuente de datos primaria. |
+| **Power BI Desktop** | Latest | Motor de visualización y modelado de datos |
+| **Power Query** | M Language | Proceso ETL y limpieza de datos brutos |
+| **DAX** | Data Analysis Expressions | Creación de medidas y KPIs complejos |
+| **Microsoft Excel** | .xlsx | Almacenamiento de datos de origen |
 
-<p align="center">Desarrollado por @migueljerico · 2024</p>
+## 📚 Contexto formativo o motivación del proyecto
+Este proyecto surge de la necesidad de profesionalizar la gestión de RRHH mediante el uso de Business Intelligence, sustituyendo reportes estáticos por dashboards interactivos que permitan detectar ineficiencias salariales y optimizar los planes de formación corporativa.
+
+<p align="center">Desarrollado por @migueljerico · 2026</p>
