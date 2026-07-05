@@ -56,4 +56,4 @@ Para evaluar la capacitación, accede a la página **Formación y Satisfacción*
 ## 📚 Contexto formativo o motivación del proyecto
 Este proyecto surge de la necesidad de profesionalizar la gestión de RRHH mediante el uso de Business Intelligence, sustituyendo reportes estáticos por dashboards interactivos que permitan detectar ineficiencias salariales y optimizar los planes de formación corporativa.
 
-<p align="center">Desarrollado por @migueljerico mediante la app Asistente de IA para Publicar Repositorios · 2026</p>
+<p align="center">Desarrollado por @migueljerico y documentado mediante la app Asistente de IA para Publicar Repositorios · 2026</p>
