@@ -4,6 +4,10 @@
 
 *Sistema de inteligencia de negocios para el análisis multidimensional del capital humano y gestión de talento.*
 
+## 📸 Vista Previa del Dashboard
+
+![Vista previa del dashboard](https://raw.githubusercontent.com/migueljerico/powerbi-gestion-people/main/screenshots/Captura_Dashboard_Gestion_People.png)
+
 ## 🔗 Acceso / Demo
 El proyecto se distribuye como una plantilla interactiva de Power BI (`.pbit`) que permite la carga dinámica de datos mediante un parámetro de ruta local. No requiere instalación de servidor; funciona directamente en **Power BI Desktop** y puede publicarse posteriormente en el servicio web de Microsoft.
 
@@ -44,14 +48,16 @@ Los segmentadores superiores permiten filtrar por departamento, tipo de contrato
 
 ## 📁 Estructura del proyecto
 ```text
-. 
+.
+├── GestionPeople_Informe.19062026.pbit
+├── GestionPeople_Dataset_PowerBI.xlsx
 ├── README.md
 ├── MANUAL_TECNICO.md
-├── GestionPeople_Informe.19062026.pbit
 └── docs/
     ├── GestionPeople_Dataset_PowerBI.md
     └── GestionPeople_Informe.19062026.md
-
+└── screenshots/
+    ├── Captura_Dashboard_Gestion_People.png
 ```
 
 ## 🛠️ Tecnologías
