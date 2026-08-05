@@ -47,9 +47,11 @@ Los segmentadores superiores permiten filtrar por departamento, tipo de contrato
 . 
 ├── README.md
 ├── MANUAL_TECNICO.md
+├── GestionPeople_Informe.19062026.pbit
 └── docs/
     ├── GestionPeople_Dataset_PowerBI.md
     └── GestionPeople_Informe.19062026.md
+
 ```
 
 ## 🛠️ Tecnologías
