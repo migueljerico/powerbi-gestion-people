@@ -8,7 +8,7 @@
 
 ## 📸 Vista Previa del Dashboard
 
-Aquí puedes ver una captura del panel principal de **Gestión People**, donde se centralizan los KPIs de capital humano, la distribución de la plantilla y el análisis de desempeño.
+Aquí puedes ver una captura del panel principal de **Gestión People**, donde se centralizan los KPIs de capital humano, la distribución de la plantilla por género, departamento y tipo de contrato.
 
 ![Dashboard de Gestión People](./screenshots/Captura_Dashboard_Gestion_People.png)
 
