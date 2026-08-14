@@ -1,116 +1,251 @@
 # 📘 Manual Técnico: Gestión People
 
+Sistema de Business Intelligence y Analítica de Recursos Humanos implementado sobre la plataforma Microsoft Power BI, estructurado mediante modelos tabulares, pipelines de extracción y transformación en lenguaje M (Power Query) y formulaciones analíticas en DAX (Data Analysis Expressions).
+
+---
+
 ## 🏗️ Arquitectura General
 
-El sistema sigue un flujo de procesamiento de Inteligencia de Negocios (BI) de cuatro capas, típico del ecosistema Microsoft Power Platform. La arquitectura es monolítica a nivel de cliente (Power BI Desktop) y se distribuye mediante plantillas `.pbit` para consumo en servicio.
+El sistema implementa una arquitectura en capas desacopladas orientada a la ingestión, transformación, modelado relacional y visualización interactiva de métricas del capital humano.
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  CAPA DE PRESENTACIÓN (Power BI Report / Service)              │
-│  └── 8 Páginas especializadas, Segmentadores, Botones de acción │
-├─────────────────────────────────────────────────────────────────┤
-│  CAPA DE LÓGICA (Motor DAX & Modelo Relacional)                │
-│  └── Medidas calculadas, Inteligencia de tiempo, Filtros       │
-├─────────────────────────────────────────────────────────────────┤
-│  CAPA DE TRANSFORMACIÓN (Power Query / Lenguaje M)             │
-│  └── Limpieza, tipado estricto, fusión de tablas, parámetros   │
-├─────────────────────────────────────────────────────────────────┤
-│  CAPA DE ORIGEN (Archivo Excel .xlsx)                          │
-│  └── Hojas: Empleados, Departamentos, RegistroFormacion         │
-└─────────────────────────────────────────────────────────────────┘
-Flujo de ejecución: Origen → ETL → Modelo → Visualización
+┌───────────────────────────────────────────────────────────────────────────────────┐
+│                      CAPA DE PRESENTACIÓN (Power BI Report)                       │
+│  ┌─────────────────────────┬─────────────────────────┬─────────────────────────┐  │
+│  │ Resumen & Dashboard     │ Brecha Salarial Género  │ Formación & Satisfacción│  │
+│  │ (Cards, Donut, Columns) │ (ComboChart, Pivots)    │ (Scatter, Bubble Chart) │  │
+│  ├─────────────────────────┼─────────────────────────┼─────────────────────────┤  │
+│  │ Mapa de Talento         │ Tendencias y Desempeño  │ Paneles Departamentales │  │
+│  │ (Filled Map, Shape Map) │ (Line Charts, Matrix)   │ (Cross-filtering & UI)  │  │
+│  └─────────────────────────┴─────────────────────────┴─────────────────────────┘  │
+└────────────────────────────────────────▲──────────────────────────────────────────┘
+                                         │ Contexto de Filtro / Consultas DAX
+┌────────────────────────────────────────┴──────────────────────────────────────────┐
+│                   CAPA DE LÓGICA (Motor Tabular VertiPaq & DAX)                   │
+│  ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│  │ Esquema en Estrella / Constelación:                                         │  │
+│  │ [Departamentos_final] ──(1:N)──> [Empleados_final] ──(1:N)──> [Formación]   │  │
+│  ├─────────────────────────────────────────────────────────────────────────────┤  │
+│  │ Medidas Analíticas & KPIs:                                                  │  │
+│  │ • Brecha Salarial Genero % • % Indefinidos       • Evaluacion Numerica      │  │
+│  │ • Horas Ultimo Año         • Color Fondo Tabla   • % Empleados Formados     │  │
+│  ├─────────────────────────────────────────────────────────────────────────────┤  │
+│  │ Inteligencia Temporal: Tablas auxiliares LocalDateTable_* & DateTableTemplate│  │
+│  └─────────────────────────────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────▲──────────────────────────────────────────┘
+                                         │ Tablas Tipadas y Limpias
+┌────────────────────────────────────────┴──────────────────────────────────────────┐
+│              CAPA DE TRANSFORMACIÓN & ETL (Power Query / Lenguaje M)               │
+│  ┌─────────────────────────┬─────────────────────────┬─────────────────────────┐  │
+│  │ Consulta: Empleados     │ Consulta: Departamentos │ Consulta: RegFormación  │  │
+│  │ • Tipado estricto       │ • Normalización claves  │ • Cálculo duración      │  │
+│  │ • Deduplicación ID      │ • Filtro integridad ref │ • Limpieza modalidades  │  │
+│  └─────────────────────────┴─────────────────────────┴─────────────────────────┘  │
+│  └── Parámetro dinámico de origen: #"Path_Excel"                                  │
+└────────────────────────────────────────▲──────────────────────────────────────────┘
+                                         │ Carga de Hojas de Cálculo
+┌────────────────────────────────────────┴──────────────────────────────────────────┐
+│                       CAPA DE ORIGEN (Almacén de Datos)                           │
+│  └── Archivo Excel: GestionPeople_Dataset_PowerBI.xlsx                            │
+│      ├── Hoja: Empleados (55 registros, 17 columnas de atributos)                 │
+│      ├── Hoja: Departamentos (8 registros, 5 columnas de estructura)              │
+│      └── Hoja: RegistroFormacion (129 registros, 9 columnas históricas)           │
+└───────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Flujo de Datos Detallado
-- **Capa de Datos**: Importación directa de tres hojas planas desde un archivo Excel externo.
-- **Capa de Lógica**: Aplicación de transformaciones tipográficas (`Table.TransformColumnTypes`), establecimiento de relaciones estrella y cálculo de KPIs mediante expresiones DAX.
-- **Capa de Presentación**: Renderizado interactivo en 8 páginas con segmentadores cruzados, mapas geoespaciales y gráficos de correlación.
+### Flujo de Datos y Ciclo de Vida
+1. **Extracción**: El conector nativo de Excel (`Excel.Workbook(File.Contents(Path_Excel))`) lee los libros binarios del origen parametrizado.
+2. **Transformación (ETL)**: El motor M normaliza tipos de datos primitivos (`type text`, `Int64.Type`, `Currency.Type`, `type date`), limpia inconsistencias ortográficas y valida claves primarias.
+3. **Modelado en Memoria (VertiPaq)**: Se comprimen y almacenan las columnas en memoria columnar, generando relaciones de integridad referencial 1:N entre dimensiones y tablas de hechos.
+4. **Cálculo Dinámico**: Las medidas DAX evalúan dinámicamente agregaciones y ratios bajo el contexto de evaluación (Filter Context & Row Context).
+5. **Renderizado Visual**: La capa de reporte recibe los resultados calculados y procesa la interacción del usuario mediante segmentación cruzada y formato condicional.
 
 ---
 
 ## 🧩 Componentes Principales
 
-### 1. Plantilla Principal (`GestionPeople_Informe.19062026.pbit`)
-- **Responsabilidad**: Archivo contenedor que almacena el modelo de datos, consultas M, medidas DAX y diseño de informes. Actúa como plantilla reutilizable.
-- **Funciones Clave**: Inicialización dinámica del parámetro `Path_Excel`, carga diferida de hojas, aplicación de temas corporativos y configuración de navegación entre páginas.
+### 1. Archivo de Plantilla (`GestionPeople_Informe.19062026.pbit`)
+- **Ruta**: Raíz del repositorio.
+- **Responsabilidad**: Archivo binario empaquetado sin datos cacheados que contiene la metadata del modelo de datos, diseño de reportes visuales, temas corporativos, medidas DAX y scripts Power Query M.
+- **Parámetros Exportados**: `Path_Excel` (parámetro de tipo texto para configurar la ruta de origen en el despliegue).
 
-### 2. Consultas Power Query (ETL)
-- **`Empleados_final`**: Importa y limpia la tabla maestra de personal. Aplica conversión de tipos (Texto, Fecha, Decimal, Entero) y elimina registros duplicados por `IDEmpleado`.
-- **`Departamentos_final`**: Carga la estructura organizativa. Filtra nulos en `DirectorDpto` y asegura integridad referencial con `IDDepartamento`.
-- **`Registro formacion_final`**: Procesa el histórico de cursos. Calcula duración efectiva, filtra modalidades inválidas y prepara campos para agregación temporal.
+### 2. Dataset Fuente (`GestionPeople_Dataset_PowerBI.xlsx`)
+- **Ruta**: Raíz del repositorio (`docs/GestionPeople_Dataset_PowerBI.md`).
+- **Responsabilidad**: Base transaccional de pruebas de Recursos Humanos para la empresa GestiónPeople S.L.
 
-### 3. Modelo de Datos y Relaciones
-- **Tablas**: `Empleados_final` (hecho central), `Departamentos_final` (dimensión), `Registro formacion_final` (dimensión/histo).
-- **Relaciones**: 
-  - `Departamentos_final[IDDepartamento]` → `Empleados_final[IDDepartamento]` (1:N)
-  - `Empleados_final[IDEmpleado]` → `Registro formacion_final[IDEmpleado]` (1:N)
-- **Tablas Auxiliares**: `LocalDateTable` y `DateTableTemplate` para inteligencia de tiempo (YTD, YoY, últimos 12 meses).
-
-### 4. Medidas DAX Exportadas
-- **`Brecha Salarial Genero %`**: Calcula la diferencia porcentual del salario promedio entre géneros.
-- **`% Indefinidos`**: Proporción de contratos indefinidos sobre el total de la plantilla.
-- **`Evaluacion Numerica`**: Mapeo condicional de categorías cualitativas a escala numérica (1-4) para agregación matemática.
-- **`Horas Ultimo Año`**: Suma acumulada de horas de formación filtradas por ventana temporal relativa (`TODAY()`).
-- **`Color Fondo Tabla`**: Medida de formato condicional que asigna `#92D050` cuando `HorasFormacion > 40` y `Evaluacion = "Excelente"`.
+#### Esquema de Tablas Fuente
+| Tabla | Filas | Columnas Clave | Tipos de Datos Principales |
+| :--- | :--- | :--- | :--- |
+| **`Empleados`** | 55 | `IDEmpleado` (PK), `IDDepartamento` (FK), `Salario`, `Genero`, `FechaContratacion`, `Evaluacion` | `Text`, `Int64`, `Currency`, `Date` |
+| **`Departamentos`** | 8 | `IDDepartamento` (PK), `NombreDepartamento`, `DirectorDpto`, `PresupuestoAnual`, `NumeroObjetivos` | `Text`, `Int64`, `Currency` |
+| **`RegistroFormacion`**| 129 | `IDFormacion` (PK), `IDEmpleado` (FK), `NombreCurso`, `Horas`, `Coste`, `Superado` | `Text`, `Int64`, `Currency`, `Date` |
 
 ---
 
-## 🔌 APIs y Endpoints (Consultas de Entrada)
+### 3. Pipeline ETL (Lenguaje M / Power Query)
 
-*Nota: Al tratarse de una aplicación de escritorio local (Power BI Desktop), no se exponen endpoints HTTP REST. Se documentan las consultas de entrada bajo la estructura solicitada para mantener la trazabilidad del flujo de datos.*
+```powerquery
+// Consulta: Empleados_final
+let
+    Origen = Excel.Workbook(File.Contents(Path_Excel), null, true),
+    Empleados_Sheet = Origen{[Item="Empleados",Kind="Sheet"]}[Data],
+    EncabezadosPromovidos = Table.PromoteHeaders(Empleados_Sheet, [PromoteAllScalars=true]),
+    TipoCambiado = Table.TransformColumnTypes(EncabezadosPromovidos,{
+        {"IDEmpleado", type text},
+        {"NombreCompleto", type text},
+        {"Genero", type text},
+        {"FechaNacimiento", type date},
+        {"FechaContratacion", type date},
+        {"IDDepartamento", type text},
+        {"Cargo", type text},
+        {"TipoContrato", type text},
+        {"Salario", Currency.Type},
+        {"AniosExperiencia", Int64.Type},
+        {"Ciudad", type text},
+        {"Provincia", type text},
+        {"ComunidadAutonoma", type text},
+        {"Pais", type text},
+        {"Satisfaccion", Int64.Type},
+        {"HorasFormacion", Int64.Type},
+        {"Evaluacion", type text}
+    })
+in
+    TipoCambiado
+```
 
-| Método | Ruta | Descripción | Parámetros |
-| :--- | :--- | :--- | :--- |
-| `IMPORTAR` | `Path_Excel` | Carga inicial de hojas desde archivo local | `HojaOrigen` (String), `TiposColumna` (Record), `FiltroNulos` (Boolean) |
-| `TRANSFORMAR` | `Query_M` | Aplicación de pipeline ETL en memoria | `TablaFuente`, `Operaciones` (Lista de funciones M) |
-| `CALCULAR` | `Measure_DAX` | Evaluación de KPIs en contexto de filtro | `TablaContexto`, `FiltrosCruzados`, `GranularidadTemporal` |
+- **`Departamentos_final`**: Procesa la entidad departamental, tipando `PresupuestoAnual` como moneda y validando el identificador alfanumérico `IDDepartamento`.
+- **`Registro formacion_final`**: Estandariza fechas de inicio y fin, convierte el campo `Horas` a entero no negativo y asegura que `Coste` mantenga precisión decimal de moneda.
 
 ---
 
-## ⚙️ Variables de Entorno
+### 4. Lógica de Negocio y Medidas DAX
 
-| Variable | Valor de ejemplo | Obligatoria | Descripción |
+```dax
+// 1. Brecha Salarial de Género Porcentual
+Brecha Salarial Genero % = 
+VAR SalarioHombres = CALCULATE(AVERAGE(Empleados_final[Salario]), Empleados_final[Genero] = "Masculino")
+VAR SalarioMujeres = CALCULATE(AVERAGE(Empleados_final[Salario]), Empleados_final[Genero] = "Femenino")
+RETURN
+    DIVIDE(SalarioHombres - SalarioMujeres, SalarioHombres, 0)
+
+// 2. Proporción de Contratos Indefinidos
+% Indefinidos = 
+DIVIDE(
+    CALCULATE(COUNTROWS(Empleados_final), Empleados_final[TipoContrato] = "Indefinido"),
+    COUNTROWS(Empleados_final),
+    0
+)
+
+// 3. Mapeo de Evaluación Cualitativa a Cuantitativa
+Evaluacion Numerica = 
+SWITCH(
+    SELECTEDVALUE(Empleados_final[Evaluacion]),
+    "Excelente", 4,
+    "Bueno", 3,
+    "Aceptable", 2,
+    "Mejorable", 1,
+    0
+)
+
+// 4. Agregación de Formación en Ventana Móvil
+Horas Ultimo Año = 
+CALCULATE(
+    SUM('Registro formacion_final'[Horas]),
+    DATESINPERIOD('Registro formacion_final'[FechaFin], TODAY(), -1, YEAR)
+)
+
+// 5. Formato Condicional Dinámico (Semáforo de Desempeño)
+Color Fondo Tabla = 
+IF(
+    SELECTEDVALUE(Empleados_final[HorasFormacion]) >= 40 && 
+    SELECTEDVALUE(Empleados_final[Evaluacion]) = "Excelente",
+    "#92D050", // Verde Corporativo
+    BLANK()
+)
+```
+
+---
+
+## 🔌 APIs y Consultas de Entrada
+
+Al ser un modelo semántico hospedado sobre el motor VertiPaq en Power BI Desktop/Service, las interfaces de comunicación operan mediante conectores M y expresiones de consulta DAX:
+
+| Método | Ruta / Entrada | Descripción | Parámetros / Esquema |
 | :--- | :--- | :--- | :--- |
-| `Path_Excel` | `C:\Datos\GestionPeople_Dataset_PowerBI.xlsx` | Sí | Ruta absoluta al archivo de origen. Debe ser accesible por el usuario o Gateway. |
-| `FechaRef` | `HOY()` | No | Fecha base para cálculos temporales dinámicos (ej. `Horas Ultimo Año`). |
-| `IdiomaInforme` | `es-ES` | No | Configuración regional para formatos de moneda, fechas y nombres de medidas. |
-| `ModoDebug` | `FALSE` | No | Habilita mensajes de error detallados en Power Query durante desarrollo. |
+| `M: File.Contents` | `Path_Excel` | Ingestión binaria del libro estructurado de Excel | `Path_Excel: Text` (Ruta absoluta local/UNC/SharePoint) |
+| `M: Excel.Workbook` | `Empleados` | Extracción de la matriz transaccional de personal | `UseHeaders: true`, `InferSheetDimensions: true` |
+| `M: Excel.Workbook` | `Departamentos` | Extracción del maestro de departamentos | `UseHeaders: true`, `InferSheetDimensions: true` |
+| `M: Excel.Workbook` | `RegistroFormacion` | Extracción del histórico de capacitaciones | `UseHeaders: true`, `InferSheetDimensions: true` |
+| `DAX: EVALUATE` | Tablas de Hechos | Evaluación analítica bajo contexto de filtro visual | Contexto de fila, filtros cruzados, jerarquías de fecha |
+
+---
+
+## ⚙️ Variables de Entorno y Parámetros
+
+| Variable / Parámetro | Valor de Ejemplo | Obligatoria | Descripción |
+| :--- | :--- | :--- | :--- |
+| `Path_Excel` | `C:\Datos\GestionPeople_Dataset_PowerBI.xlsx` | **Sí** | Ruta física o URI del archivo Excel fuente que consume Power Query. |
+| `IdiomaInforme` | `es-ES` | No | Configuración regional para la interpretación de separadores decimales `,` y fechas `DD/MM/YYYY`. |
+| `FechaRef` | `2026-08-14` / `TODAY()` | No | Parámetro o función base para cálculos de antigüedad e inteligencia temporal. |
+| `DirectQueryMode` | `Import (Default)` | No | Modo de almacenamiento del motor de datos (fijado en Importación en memoria). |
 
 ---
 
 ## 🚀 Guía de Despliegue Paso a Paso
 
-### 1. Prerrequisitos
-- **Software**: Power BI Desktop (versión estable recomendada ≥ 2024).
-- **Datos**: Archivo Excel `GestionPeople_Dataset_PowerBI.xlsx` con estructura intacta (17 columnas en Empleados, 5 en Departamentos, 9 en RegistroFormacion).
-- **Permisos**: Lectura/Escritura en la ruta definida por `Path_Excel`.
+### 1. Requisitos Previos
+- **Power BI Desktop**: Versión actualizada (2024 o superior / compilación vigente en 2026).
+- **Sistema Operativo**: Windows 10/11 x64 o Windows Server 2019/2022.
+- **Acceso a Datos**: Permisos de lectura en el sistema de archivos donde resida `GestionPeople_Dataset_PowerBI.xlsx`.
 
-### 2. Instalación y Configuración Local
-1. Descargar `GestionPeople_Informe.19062026.pbit` desde el repositorio.
-2. Abrir el archivo con doble clic o arrastrándolo a Power BI Desktop.
-3. En el cuadro de diálogo **Configuración de parámetros**, ingresar la ruta completa al archivo Excel en `Path_Excel`.
-4. Hacer clic en **Cargar**. Power Query ejecutará las transformaciones M y validará los tipos de datos.
-5. Verificar en el panel **Modelo** que las relaciones 1:N estén activas y sin cruces de filtro no deseados.
+### 2. Despliegue Local (Desarrollo y Auditoría)
+1. **Clonar el repositorio**:
+   ```bash
+   git clone https://github.com/migueljerico/powerbi-gestion-people.git
+   cd powerbi-gestion-people
+   ```
+2. **Ubicación del dataset**:
+   Copie el archivo `GestionPeople_Dataset_PowerBI.xlsx` en una ruta estandarizada (ej. `C:\Datos\GestionPeople_Dataset_PowerBI.xlsx`).
+3. **Inicialización de la plantilla**:
+   - Abra el archivo `GestionPeople_Informe.19062026.pbit`.
+   - En la ventana modal emergente **Parámetros**, introduzca la ruta completa al archivo Excel en el campo `Path_Excel`.
+   - Presione **Cargar**.
+4. **Validación del Modelo**:
+   - Vaya a la vista de **Modelo** y compruebe que las relaciones están activas:
+     - `Departamentos_final[IDDepartamento]` (1) ──> `Empleados_final[IDDepartamento]` (N)
+     - `Empleados_final[IDEmpleado]` (1) ──> `Registro formacion_final[IDEmpleado]` (N)
+   - Guarde el archivo con extensión `.pbix` (`GestionPeople_Produccion.pbix`).
 
-### 3. Publicación y Distribución
-1. Hacer clic en **Publicar** → Seleccionar Workspace de destino en Power BI Service.
-2. Configurar **Gateway de datos** (On-premises o Cloud) si el archivo Excel reside en una red local o servidor compartido.
-3. Programar actualización automática: `Configuración del conjunto de datos` → `Programar actualización` (recomendado: diario o semanal).
-4. Compartir el informe mediante enlaces directos o integración en Teams/SharePoint.
+### 3. Publicación en Power BI Service (Producción)
+1. **Publicar el Reporte**:
+   - En la pestaña *Inicio* de Power BI Desktop, haga clic en **Publicar**.
+   - Seleccione el Área de Trabajo corporativa de destino (Workspace).
+2. **Configuración de Conectividad (Gateway)**:
+   - Si el archivo Excel reside en una unidad de red local, configure un **On-Premises Data Gateway** estándar.
+   - En `Configuración del Conjunto de Datos` -> `Credenciales de origen de datos`, valide los accesos del Gateway con permisos de lectura.
+3. **Programación de Actualizaciones**:
+   - Active la **Actualización programada** (diaria/semanal según el flujo de RRHH).
 
 ---
 
 ## ⚠️ Limitaciones Conocidas y Posibles Mejoras Futuras
 
 ### Limitaciones Actuales
-- **Dependencia de Ruta Estática**: El parámetro `Path_Excel` requiere acceso directo al disco local. Cambios de directorio o migración a entornos multiusuario romperán el ETL sin intervención manual.
-- **Ausencia de Seguridad Granular**: No se implementa Row Level Security (RLS). Todos los usuarios con acceso ven los salarios y evaluaciones completas.
-- **Rendimiento en Escala**: Las medidas DAX evalúan contexto completo sin optimización por variables (`VAR`), lo que puede degradar el rendimiento con >50k registros.
-- **Manejo de Errores**: Falta validación explícita de esquemas; una columna adicional o renombrada en el Excel generará fallos silenciosos o abortará la carga.
+- **Conexión a Archivo Estático**: El origen de datos basado en Excel genera riesgo de bloqueo de archivos por concurrencia y no soporta inserción masiva en tiempo real.
+- **Seguridad a Nivel de Fila (RLS)**: El modelo actual carece de roles RLS (`Row Level Security`), lo que expone salarios y evaluaciones a cualquier usuario que consuma el reporte.
+- **Acoplamiento de Esquema**: Modificaciones en los encabezados o nombres de columna del Excel provocarán fallos de evaluación en el paso `Table.TransformColumnTypes` de Power Query.
 
-### Hoja de Ruta y Mejoras Recomendadas
-1. **Migración a Fuente Centralizada**: Reemplazar Excel por SQL Server o Azure Synapse. Utilizar Power BI Gateway para sincronización segura y soportar concurrencia.
-2. **Implementación de RLS Dinámico**: Crear roles basados en `Departamento` o `Cargo` para restringir visibilidad salarial según jerarquía organizativa.
-3. **Optimización DAX**: Reescribir medidas críticas usando `VAR` para caching intermedio, y aplicar `TREATAS` o `USERELATIONSHIP` para evitar ambigüedades en tablas de fecha.
-4. **Automatización de Validación**: Incorporar pasos de `try...catch` en Power Query para registrar errores de tipo o estructura en una tabla de log interna antes de cargar el modelo.
-5. **Internacionalización**: Externalizar cadenas de UI y formatos numéricos a archivos JSON/CSV para facilitar despliegues multilingüe sin recompilar el informe.
+### Mejoras Recomendadas
+1. **Migración a Base de Datos Centralizada**:
+   Migrar el origen a Azure SQL Database, PostgreSQL o SharePoint Lists corporativo para soporte multiusuario transaccional.
+2. **Implementación de RLS Basado en Jerarquías**:
+   Definir roles de seguridad DAX como:
+   ```dax
+   [IDDepartamento] = LOOKUPVALUE(UsuariosDpto[IDDepartamento], UsuariosDpto[Email], USERPRINCIPALNAME())
+   ```
+3. **Optimización DAX con Variables y Tablas Desconectadas**:
+   Refactorizar medidas complejas para almacenar contextos intermedios mediante bloques `VAR / RETURN`, reduciendo el escaneo de memoria en el motor VertiPaq.
+4. **Implementación de Calendario Dedicado**:
+   Sustituir las `LocalDateTable` automáticas por una tabla `Dim_Calendario` centralizada generada con `CALENDARAUTO()`, optimizando el consumo de RAM.
+
+<p align="center">Creado por <a href="https://github.com/migueljerico">@migueljerico</a> y documentado por Google Gemini (gemini-3.7-flash) desde la App Asistente de IA · 2026</p>
