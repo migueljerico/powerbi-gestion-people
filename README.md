@@ -1,76 +1,158 @@
 # 📊 Power BI Gestión People
 
-![Power BI](https://img.shields.io/badge/Power%20BI-F2C811?style=for-the-badge&logo=microsoft-power-bi&logoColor=white) ![DAX & M](https://img.shields.io/badge/DAX%20%26%20M-0078D4?style=for-the-badge) ![Estado](https://img.shields.io/badge/Estado-Publicado-green?style=for-the-badge) ![Licencia](https://img.shields.io/badge/Licencia-MIT-lightgrey?style=for-the-badge)
+![Power BI](https://img.shields.io/badge/Power_BI-F2C811?style=for-the-badge&logo=microsoft-power-bi&logoColor=black) ![DAX & M](https://img.shields.io/badge/DAX_%26_M-0078D4?style=for-the-badge&logo=microsoft&logoColor=white) ![Microsoft Excel](https://img.shields.io/badge/Microsoft_Excel-217346?style=for-the-badge&logo=microsoft-excel&logoColor=white) ![Estado](https://img.shields.io/badge/Estado-Publicado-success?style=for-the-badge) ![Licencia](https://img.shields.io/badge/Licencia-MIT-blue?style=for-the-badge)
 
-*Sistema de inteligencia de negocios para el análisis multidimensional del capital humano y gestión de talento.*
+*Sistema integral de inteligencia de negocios para el análisis multidimensional del capital humano, equidad salarial y desarrollo del talento corporativo.*
 
-## 📸 Vista Previa del Dashboard
-
-![Vista previa del dashboard](https://raw.githubusercontent.com/migueljerico/powerbi-gestion-people/main/screenshots/Captura_Dashboard_Gestion_People.png)
+---
 
 ## 🔗 Acceso / Demo
-El proyecto se distribuye como una plantilla interactiva de Power BI (`.pbit`) que permite la carga dinámica de datos mediante un parámetro de ruta local. No requiere instalación de servidor; funciona directamente en **Power BI Desktop** y puede publicarse posteriormente en el servicio web de Microsoft.
+
+El informe está distribuido como una plantilla de Power BI (`.pbit`) parametrizada (`Path_Excel`), permitiendo desacoplar la capa de visualización y lógica de la fuente de datos local:
+
+- **Modo Local**: Compatible con **Power BI Desktop** (versión 2026 o superior) mediante parametrización dinámica del origen Excel.
+- **Despliegue Corporativo**: Listo para su publicación directa en **Power BI Service**, vinculable a puertas de enlace de datos (On-Premises Data Gateway) o almacenamiento cloud en Microsoft SharePoint / Microsoft Fabric.
+
+---
 
 ## 📋 Descripción
-**Power BI Gestión People** es una solución de Business Intelligence diseñada específicamente para departamentos de Recursos Humanos y gestión estratégica del talento. El proyecto resuelve la fragmentación típica de los datos de RRHH, centralizando métricas dispersas en hojas de cálculo estáticas y transformándolas en un modelo relacional dinámico capaz de generar insights accionables sobre equidad, rendimiento y desarrollo profesional.
 
-La arquitectura del informe conecta tres fuentes de información críticas: perfiles de empleados, estructura departamental y registros históricos de formación. Mediante transformaciones ETL automatizadas y medidas DAX avanzadas, el sistema permite a los gestores identificar brechas salariales por género, visualizar la distribución geográfica de la plantilla, correlacionar horas de capacitación con niveles de satisfacción y detectar patrones temporales de contratación y rotación.
+**Power BI Gestión People** es una solución analítica integral de Business Intelligence diseñada para transformar la gestión estratégica de Recursos Humanos y People Analytics. Resuelve la fragmentación operativa provocada por el uso de múltiples hojas de cálculo desconectadas, unificando registros de personal, estructuras departamentales y planes de capacitación continua en un único modelo relacional en estrella.
 
-Esta herramienta está pensada para directivos de RRHH, analistas de datos corporativos y equipos de planificación estratégica que necesitan sustituir reportes manuales por paneles de control interactivos, segmentables y actualizables bajo demanda.
+La plataforma implementa un pipeline automatizado de extracción, transformación y carga (ETL) en **Power Query (Lenguaje M)** que garantiza tipado estricto e integridad referencial. A través de un motor de cálculo modelado en **DAX**, el sistema calcula KPIs críticos de rendimiento, distribución demográfica, equidad retributiva por género y correlación entre inversión formativa y satisfacción laboral.
+
+Diseñado específicamente para directores de Recursos Humanos, especialistas en People Analytics y comités de dirección, este dashboard elimina los informes estáticos manuales y proporciona un entorno interactivo con filtrado cruzado, análisis temporal y visualizaciones geoespaciales avanzadas.
+
+---
 
 ## ✨ Funcionalidades
 
 | Funcionalidad | Descripción |
 | :--- | :--- |
-| **Resumen Ejecutivo** | Panel de control con 5+ Cards de KPIs críticos, gráficos Donut y Columnas, junto a segmentadores dinámicos para filtrado cruzado instantáneo. |
-| **Análisis de Brecha Salarial** | Comparativa de equidad salarial por género utilizando `ComboChart` y tablas pivot, calculando automáticamente la diferencia porcentual mediante DAX. |
-| **Mapa de Talento** | Visualización geoespacial de la ubicación de los empleados mediante `FilledMaps` y tablas de densidad por Comunidad Autónoma y Provincia. |
-| **Seguimiento de Formación** | Análisis de capacitación y satisfacción mediante `ScatterChart` que correlaciona horas acumuladas, coste por curso y nivel de satisfacción (escala 1-10). |
-| **Tendencias y Correlaciones** | Identificación de patrones temporales de contratación, evaluación de desempeño y evolución de objetivos departamentales a lo largo del tiempo. |
+| **Resumen y Dashboard Ejecutivo** | Panel de control centralizado con más de 5 tarjetas KPI (`Cards`), gráficos de anillo (`Donut`), columnas y segmentadores dinámicos cruzados. |
+| **Análisis de Brecha Salarial** | Evaluación de equidad retributiva por género y departamento mediante `ComboChart` y tablas dinámicas impulsadas por la medida `Brecha Salarial Genero %`. |
+| **Mapa Geoespacial de Talento** | Visualización geográfica de la plantilla utilizando `FilledMaps` y matrices de densidad por Comunidad Autónoma, Provincia y Ciudad. |
+| **Matriz de Formación y Satisfacción** | Análisis de correlación mediante `ScatterChart` cruzando horas acumuladas, coste por acción formativa y nivel de satisfacción del empleado (escala 1-10). |
+| **Evaluación Cuantitativa de Desempeño** | Transformación de evaluaciones cualitativas en índices numéricos (`Evaluacion Numerica`) y cálculo del `% Evaluacion Excelente/Bueno`. |
+| **Gestión y Control de Contratación** | Monitorización de estabilidad laboral calculando el ratio `% Indefinidos` frente a contratos temporales y de prácticas. |
+| **Inteligencia Temporal y Formato Condicional** | Análisis de ventanas móviles (`Horas Ultimo Año`) y formateo dinámico de tablas (`Color Fondo Tabla`) según umbrales de excelencia y dedicación. |
+
+---
 
 ## ⚙️ Instalación
 
-1. **Descargar la plantilla**: Obtén el archivo `GestionPeople_Informe.19062026.pbit` desde la raíz del repositorio.
-2. **Abrir en Power BI Desktop**: Ejecuta el archivo con la versión más reciente de Power BI Desktop instalada.
-3. **Configurar Origen de Datos**: Cuando el asistente solicite el parámetro `Path_Excel`, introduce la ruta absoluta al archivo Excel de práctica:
-   ```powershell
-   C:\Datos\GestionPeople_Dataset_PowerBI.xlsx
+1. **Clonar o descargar el repositorio**:
+   ```bash
+   git clone https://github.com/migueljerico/powerbi-gestion-people.git
+   cd powerbi-gestion-people
    ```
-4. **Validar Transformaciones**: Haz clic en "Cargar" para que Power Query ejecute las consultas `Empleados_final`, `Departamentos_final` y `Registro formacion_final`, aplicando automáticamente el tipado de columnas (`Table.TransformColumnTypes`) y estableciendo las relaciones 1:N.
+
+2. **Verificar el archivo de datos**:
+   Asegúrate de disponer del archivo de datos estructurado `GestionPeople_Dataset_PowerBI.xlsx` con las hojas `Empleados`, `Departamentos` y `RegistroFormacion`.
+
+3. **Abrir la plantilla en Power BI Desktop**:
+   Haz doble clic sobre el archivo de plantilla:
+   ```text
+   GestionPeople_Informe.19062026.pbit
+   ```
+
+4. **Configurar el parámetro de origen**:
+   Al abrirse el asistente interactivo, introduce la ruta absoluta del archivo Excel de origen en el parámetro `Path_Excel`:
+   ```powershell
+   C:\Ruta\Hacia\GestionPeople_Dataset_PowerBI.xlsx
+   ```
+
+5. **Cargar y validar el modelo**:
+   Pulsa en **Cargar**. Power Query ejecutará las transformaciones M tipadas (`Empleados_final`, `Departamentos_final`, `Registro formacion_final`), regenerará las relaciones del modelo y renderizará las 8 páginas analíticas.
+
+---
 
 ## 🚀 Uso
 
-Una vez cargados los datos, navega por las pestañas inferiores para acceder a los módulos analíticos. Para evaluar la equidad organizacional, dirígete a la página **Análisis Brecha Salarial de Género** y utiliza el `ComboChart` para comparar el salario promedio entre géneros. La medida DAX `Brecha Salarial Genero %` calculará automáticamente la desviación porcentual.
+### 1. Navegación por Módulos Analíticos
+El informe cuenta con navegación por botones y pestañas temáticas:
+- **Resumen Ejecutivo**: Vista macro del estado de la organización, plantilla total y distribución contractual.
+- **Análisis Brecha Salarial de Género**: Comparativa salarial directa entre géneros para auditorías de equidad retributiva.
+- **Mapa de Talento / Distribución Geográfica**: Análisis territorial de densidad de empleados.
+- **Formación y Satisfacción**: Correlación de horas lectivas vs. desempeño y satisfacción laboral.
 
-Para auditar el impacto de la capacitación, accede a **Formación y Satisfacción** y analiza la nube de puntos generada por el `ScatterChart`. Observa cómo la medida `Evaluacion Numerica` transforma las categorías cualitativas ("Excelente", "Bueno", etc.) en una escala cuantitativa (1-4), permitiendo correlacionar directamente las horas de formación con el desempeño registrado.
+### 2. Principales Medidas DAX Implementadas
 
-Los segmentadores superiores permiten filtrar por departamento, tipo de contrato o año de contratación en tiempo real, actualizando todos los visuales conectados simultáneamente.
+* **Cálculo de Brecha Salarial de Género**:
+  ```dax
+  Brecha Salarial Genero % = 
+  VAR SalarioHombres = CALCULATE(AVERAGE(Empleados_final[Salario]), Empleados_final[Genero] = "Masculino")
+  VAR SalarioMujeres = CALCULATE(AVERAGE(Empleados_final[Salario]), Empleados_final[Genero] = "Femenino")
+  RETURN
+  DIVIDE(SalarioHombres - SalarioMujeres, SalarioHombres, 0)
+  ```
+
+* **Conversión Cuantitativa de Desempeño**:
+  ```dax
+  Evaluacion Numerica = 
+  SWITCH(
+      SELECTEDVALUE(Empleados_final[Evaluacion]),
+      "Excelente", 4,
+      "Bueno", 3,
+      "Aceptable", 2,
+      "Mejorable", 1,
+      0
+  )
+  ```
+
+* **Formato Condicional Dinámico**:
+  ```dax
+  Color Fondo Tabla = 
+  IF(
+      SELECTEDVALUE(Empleados_final[HorasFormacion]) > 40 && 
+      SELECTEDVALUE(Empleados_final[Evaluacion]) = "Excelente",
+      "#92D050",
+      BLANK()
+  )
+  ```
+
+---
 
 ## 📁 Estructura del proyecto
+
 ```text
-.
-├── GestionPeople_Informe.19062026.pbit
-├── GestionPeople_Dataset_PowerBI.xlsx
-├── README.md
-├── MANUAL_TECNICO.md
+powerbi-gestion-people/
+├── LICENSE                                 # Licencia de código abierto MIT
+├── MANUAL_TECNICO.md                       # Manual de arquitectura, flujo ETL y medidas DAX
+├── README.md                               # Documentación principal del proyecto
 └── docs/
-    ├── GestionPeople_Dataset_PowerBI.md
-    └── GestionPeople_Informe.19062026.md
-└── screenshots/
-    ├── Captura_Dashboard_Gestion_People.png
+    ├── GestionPeople_Dataset_PowerBI.md    # Diccionario de datos y estructura de tablas
+    └── GestionPeople_Informe.19062026.md   # Especificación técnica del informe y visuales
 ```
+
+---
 
 ## 🛠️ Tecnologías
 
 | Herramienta | Versión/Detalle | Uso en el proyecto |
 | :--- | :--- | :--- |
-| **Power BI Desktop** | Última versión estable | Motor de visualización, modelado de datos y publicación |
-| **Power Query (Lenguaje M)** | Nativo | ETL, limpieza de nulos, transformación de tipos y parametrización de rutas |
-| **DAX** | Data Analysis Expressions | Creación de medidas KPI, inteligencia temporal y formato condicional |
-| **Microsoft Excel** | .xlsx (Office 365) | Almacenamiento estructurado de datos fuente (3 hojas relacionales) |
-| **Tablas de Fecha** | LocalDateTable / DateTableTemplate | Habilitación de cálculos YoY, MoM y agregaciones temporales precisas |
+| **Microsoft Power BI Desktop** | 2026 | Entorno principal de modelado dimensional, relaciones y diseño visual. |
+| **Power Query (Lenguaje M)** | Engine Integrado | Limpieza ETL, tipado estricto de columnas y parametrización dinámica de rutas. |
+| **DAX (Data Analysis Expressions)** | Tabular | Creación de métricas de negocio, ratios salariales, KPIs e inteligencia temporal. |
+| **Microsoft Excel** | XLSX Relacional | Almacén de datos fuente normalizado (`Empleados`, `Departamentos`, `RegistroFormacion`). |
+| **Time Intelligence Engine** | `LocalDateTable` / Templates | Gestión de series cronológicas, agregaciones anuales (YoY) y ventanas móviles. |
+
+---
 
 ## 📚 Contexto formativo o motivación del proyecto
-Este repositorio fue desarrollado como material práctico para el módulo **IFCT153 "Análisis de Datos con Excel: Power Query, Power Pivot y Power BI"**. Su objetivo pedagógico es simular un entorno corporativo real (GestiónPeople S.L.) donde los estudiantes apliquen técnicas avanzadas de diseño de informes, normalización de datos y creación de medidas DAX complejas. Más allá del ámbito académico, el proyecto responde a la necesidad empresarial de profesionalizar la gestión de RRHH, reemplazando flujos de trabajo manuales por dashboards escalables, auditables y listos para integrarse con fuentes centralizadas como SharePoint o SQL Server.
 
-<p align="center">Creado por @migueljerico y documentado por BazaarLink (Qwen 3.7 Flash (free)) · 2026</p>
+Este proyecto fue desarrollado en el marco del módulo formativo **IFCT153 "Análisis de Datos con Excel: Power Query, Power Pivot y Power BI"**.
+
+Su propósito es reproducir un caso de uso corporativo completo para la empresa ficticia **GestiónPeople S.L.**, aplicando las mejores prácticas de la industria en:
+- Normalización y preparación de datos sin redundancias.
+- Modelado relacional en estrella con granularidad mixta.
+- Cumplimiento de normativas de auditoría de brecha de género y reporting ejecutivo.
+- Creación de plantillas portables (`.pbit`) preparadas para entornos de producción empresarial.
+
+---
+
+## 📄 Licencia
+
+Este proyecto se distribuye bajo la licencia **MIT**. Consulta el archivo [LICENSE](LICENSE) para obtener más detalles.
+
+<p align="center">Creado por <a href="https://github.com/migueljerico">@migueljerico</a> y documentado por Google Gemini (gemini-3.7-flash) desde la App Asistente de IA · 2026</p>
