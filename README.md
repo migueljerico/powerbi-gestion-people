@@ -6,6 +6,14 @@
 
 ---
 
+## 📸 Vista Previa del Dashboard
+
+Aquí puedes ver una captura del panel principal de **Gestión People**, donde se centralizan los KPIs de capital humano, la distribución de la plantilla y el análisis de desempeño.
+
+![Dashboard de Gestión People](./screenshots/Captura_Dashboard_Gestion_People.png)
+
+---
+
 ## 🔗 Acceso / Demo
 
 El informe está distribuido como una plantilla de Power BI (`.pbit`) parametrizada (`Path_Excel`), permitiendo desacoplar la capa de visualización y lógica de la fuente de datos local:
